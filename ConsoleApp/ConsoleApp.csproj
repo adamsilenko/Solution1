@@ -43,7 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader.cs" />
+    <Compile Include="DataProcesing\DataReader.cs" />
+    <Compile Include="DataProcesing\DataExport.cs" />
+    <Compile Include="DataStructure\ImportedDataBase.cs" />
+    <Compile Include="DataStructure\ImportedColumn.cs" />
+    <Compile Include="DataStructure\ImportedObjectBaseClass.cs" />
+    <Compile Include="DataStructure\ImportedTable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

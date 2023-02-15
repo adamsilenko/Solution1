@@ -1,5 +1,6 @@
 ﻿namespace ConsoleApp
 {
+    using ConsoleApp.DataProcesing;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -11,8 +12,10 @@
     {
         static void Main(string[] args)
         {
-            var reader = new DataReader();
-            reader.ImportAndPrintData("dataa.csv");
+            var reader = new DataProcesing.DataReader();
+            reader.ImporFile("data.csv");
+            DataExport.PrintDataBaseObjects(reader.AllDataBases);
+            Console.ReadLine();
         }
     }
 }
