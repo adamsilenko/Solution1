@@ -1,0 +1,54 @@
+metoda Program.Main
+- b³êdna nazwa importowanego pliku dataa.csv
+- mo¿na dodaæ mo¿liwoœæ podania nazwy pliku w parametrze lub innych ustawieñ (np. okreœlenie zachowania w trakcie b³êdu danych)
+
+w³aœciwoœæ DataReader.ImportedObjects: 
+- nie uzasadniona deklaracja jako IEnumerable, zast¹piæ list¹
+- atrybutem listy powinien byæ typ bazowy, typ dodawanych elementów powinien byæ zale¿ny od typu importowanych danych (uproszczenie przetwarzania, oszczêdnoœæ pamiêci)
+- listê mo¿na rozdzieliæ na trzy osobne wg typu importowanego (bazy, tabele, kolumny) co dodatkowo uproœci i przyspieszy przygotowanie danych, a dodatkowo udostêpnia te dane bez stosowania osobnego filtrowania i rzutowania. 
+- inicjalizacja niepotrzebnie zawiera pusty element w który wpisywane s¹ nag³ówki kolumn, a w dalszym przetwarzaniu rekord kolumn jest przetwarzany jak pozosta³e. Mo¿na przeczytaæ pierwszy wiersz i nie zapisywaæ danych bo nie s¹ u¿ywane, mo¿na te¿ ewentualnie zwalidowaæ czy s¹ tam w³aœciwe nazwy kolumn.
+
+metoda DataReader.ImportAndPrintData:
+- zawiera nieu¿ywany atrybut printData
+- mo¿na dodaæ weryfikacjê czy plik jest dostêpny (je¿eli zak³adamy ¿e mo¿e nie byæ dostepny) 
+- brak zwolnienia obiektu StreamReader, u¿yæ instrukcji using
+- lista importedLines jest niepotrzebna, mo¿na od razu wype³niaæ ImportedObjects
+- pêtla tworz¹c¹ listê ImportedObject:
+-- jest niepotrzebnie oddzielona od z pêtli odczytu pliku (nie ma uzasadnienia osobna pêtla)
+-- mo¿na uproœciæ inicjalizacjê ImportedObject w pêtli, ale lepiej zast¹piæ prze³¹cznikiem z trzema metodami zale¿nymi od odczytanego typu
+-- nale¿y zwalidowaæ dane przed utworzeniem w³aœciwego obiektu dziedzicz¹cego po ImportedObjectBaseClass
+-- przy inicjalizacji ImportedObject odwo³anie do indeksu poza zakresem w przypadku rekordów pustych lub b³êdnych
+-- przy inicjalizacji ImportedObject odwo³anie do indeksu poza zakresem w przypadku rekordów typu table i database (DataType, IsNullable)
+-- przy inicjalizacji ImportedObject odwo³anie do indeksu poza zakresem w przypadku rekordów typu database (Schema, ParentName)
+-- rzutowanie na List jest nie potrzebne (je¿eli ImportedObjects zadeklarujemy jako listê)
+- pêtla oczyszczania danych jest niepotrzebnie oddzielona od pêtli tworz¹c¹ listê ImportedObject (nie ma uzasadnienia osobna pêtla)
+-- mo¿na oczyœciæ ci¹gi ze spacji przed podzia³em
+-- nie ma sensu zamieniaæ znaków podzia³u linii na ci¹g pusty poniewa¿ podzia³ linii nigdy nie wyst¹pi (nowa linia to nowy rekord).
+- nale¿y wyodrêbniæ metodê przetwarzaj¹c¹ odczytane dane (aktualnie ustawiaj¹c¹ wartoœæ NumberOfChildren)
+-- nale¿y zastosowaæ operator && zamiast drugiego if
+-- inkrementacjê NumberOfChildren mo¿na realizowaæ operatorem ++
+– zamiast ustawiaæ liczbê dzieci lepiej utworzyæ listy które bêd¹ je zawieraæ, to pozwoli na wygodniejsze przetwarzania tych danych
+- nale¿y wyodrêbniæ metodê (a w³aœciwie metody) wydruku w osobnej klasie do wydruku obiektów bazy danych
+
+klasa ImportedObject: 
+- przenieœæ ImportedObject do osobnego pliku
+- rozdzieliæ na osobne klasy dla ka¿dego typu (database, table, column)
+- okreœliæ dostêpnoœæ minimum internal, lepiej public (gdyby w przysz³oœci struktury mia³y byæ dostêpne lub przeniesione na zewn¹trz)
+- nieuzasadnione nadpisanie w³aœciwoœci Name
+- w³aœciwoœci DataType i IsNullable s¹ niepotrzebne dla typu table i database
+- w³aœciwoœæ DataType mo¿e byæ zadeklarowana jako typ wyliczeniowy
+- pole ParentName i Schema s¹ niepotrzebne dla importowanego typu database
+- w³aœciwoœæ ParentType jest niepotrzebna w tej implementacji, poniewa¿ dla table to zawsze database, a dla column to zawsze table
+- pole NumberOfChildren nie ma zastosowania dla typu column
+- pole NumberOfChildren nieuzasadnione u¿ycie double, zmieniæ na int
+- mo¿na dodaæ pole zawieraj¹ce listê dzieci – co uproœci i przyspieszy przetwarzanie danych
+- mo¿na dodaæ metodê licz¹c¹ rekordy dzieci lub lepiej metodê zwracaj¹c¹ ci¹g do wydruku rekordu w klasach dla typów
+- w³aœciwoœæ IsNullable mo¿e mieæ typ bool
+- sugerujê umieszczenie w osobnej przestrzeni nazw
+
+klasa ImportedObjectBaseClass
+- przenieœæ do osobnego pliku
+- powinna to byæ klasa abstrakcyja, dostêpnoœæ taka jak dla klas dziedzicz¹cych
+- w³aœciwoœæ Type nie jest potrzebna je¿eli zadeklarujemy osobne klasy dla odczytywanych typów danych
+- sugerujê umieszczenie w osobnej przestrzeni nazw
+
